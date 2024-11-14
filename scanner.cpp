@@ -1,3 +1,6 @@
+#ifndef SCANNER
+#define SCANNER
+
 #include <iostream>
 
 struct Token {
@@ -125,3 +128,6 @@ struct Scanner {
         return Token(Token::END);
     }
 };
+
+
+#endif

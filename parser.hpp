@@ -1,6 +1,9 @@
+#ifndef PARSER
+#define PARSER
+
 #include <iostream>
 #include "scanner.cpp"
-#include "AST.cpp"
+#include "AST.hpp"
 
 struct Parser { 
     Scanner *scanner;
@@ -25,7 +28,7 @@ struct Parser {
     }
 
     bool advance() {
-        if (!current.type == Token::END) {
+        if (current.type != Token::END) {
             Token tmp = current;
             current = scanner->nextToken();
             previous = tmp;
@@ -54,36 +57,43 @@ struct Parser {
             exit(0);
         }
 
-        AST *ast = parseRE();
+        ExpList *expl = parseRE();
 
         if (current.type != Token::END) {
             std::cout << "Error: " << current.lexema << std::endl;
             return nullptr;
         }
 
-        return ast;
-    }
-
-    AST* parseRE() {
-        ExpList *expl = new ExpList();
-        expl->add(parseBorExp());
-        while (!match(Token::END)) {
-            expl->add(parseBorExp());
-        }
         return new AST(expl);
     }
 
-    BorExp *parseBorExp() {
-        Exp *leftexp = parseUnaryExp();
-        BorExp *bor;
-        while (match(Token::UNION)) {
-            Exp *rightexp = parseUnaryExp();
+    ExpList* parseRE() {
+        ExpList *expl = new ExpList();
+        Exp* e = parseBorExp();
+        
+        while (e != nullptr) {
+            expl->add(e);
+            e = parseBorExp();
+        }
+        return expl;
+    }
+
+    Exp *parseBorExp() {
+        Exp *leftexp, *rightexp;
+        leftexp = parseUnaryExp();
+        BorExp *bor = nullptr;
+        if (match(Token::UNION)) {
+            rightexp = parseBorExp(); 
             bor = new BorExp(leftexp, rightexp);    
+        }
+        if (bor == nullptr) {
+            return leftexp;
         }
         return bor;
     }
 
     Exp* parseUnaryExp() {
+
         Exp *e = parseExp();
         if (match(Token::ASTERISK)) {
             return new AsteriskExp(e);
@@ -92,19 +102,19 @@ struct Parser {
         } else if (match(Token::QMARK)) {
             return new QmarkExp(e);
         }
+        
         return e;
     }
 
     Exp* parseExp() {
-
         if (match(Token::LPAREN)) {
-            Exp *exp = parseExp();
+            ExpList *exp = parseRE();
             if (!match(Token::RPAREN)) {
                 printError("Right parenthesis is missing");
                 exit(0);
             }
             
-            return exp;
+            return new GroupExp(exp);
 
         } else if (match(Token::LBRACKET)) {
 
@@ -131,15 +141,13 @@ struct Parser {
             }
 
         } else if (match(Token::CHAR)) {
-
             return new CharExp(previous.lexema);
-            
-        } else {
-            std::cout << "No match for token: " << current.to_string() << std::endl;
-            exit(0);  
         }
+
+        return nullptr;
     }
 
     
 };
 
+#endif

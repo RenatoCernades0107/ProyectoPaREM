@@ -1,8 +1,10 @@
-#include <ostream>
-#include <vector>
-#include "imp_visitor.cpp"
-using namespace std;
+#ifndef ASTREE
+#define ASTREE
 
+#include "imp_visitor.hpp"
+#include <iostream>
+#include <vector>
+using namespace std;
 
 
 struct Exp {
@@ -50,7 +52,7 @@ struct BorExp : public Exp {
         os << ")";
     }
 
-    int accept(ImpVisitor* v) {
+    int accept(ImpVisitor* v) override {
         return v->visit(this);
     }
     
@@ -69,7 +71,7 @@ struct CharExp : public Exp {
         os << c;
     }
 
-    int accept(ImpVisitor* v) {
+    int accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 
@@ -77,22 +79,24 @@ struct CharExp : public Exp {
 };
 
 struct GroupExp : public Exp {
-   Exp *e;
+   ExpList *expl;
 
-   GroupExp(Exp *e) : e(e) {}
+   GroupExp(ExpList *e) : expl(e) {}
 
     void print(ostream& os) const {
         os << "(";
-        e->print(os);
+        for (auto e : expl->expl) {
+            e->print(os);
+        }
         os << ")";
     }
 
-    int accept(ImpVisitor* v) {
+    int accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 
     ~GroupExp() {
-        delete e;
+        delete expl;
     }
 };
 
@@ -106,7 +110,7 @@ struct PlusExp : public Exp {
         os << "+";
     }
 
-    int accept(ImpVisitor* v) {
+    int accept(ImpVisitor* v)  override {
         return v->visit(this);
     }
 
@@ -124,7 +128,7 @@ struct NrintervalExp : public Exp {
         os << "[" << a << "..." << b << "]";
     }
 
-    int accept(ImpVisitor* v) {
+    int accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 };
@@ -139,7 +143,7 @@ struct AsteriskExp : public Exp {
         os << "*";
     }
 
-    int accept(ImpVisitor* v) {
+    int accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 
@@ -158,7 +162,7 @@ struct QmarkExp : public Exp {
         os << "?";
     }
 
-    int accept(ImpVisitor* v) {
+    int accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 
@@ -171,5 +175,8 @@ struct QmarkExp : public Exp {
 
 struct AST {
     ExpList *expl;
-    AST(ExpList *expl) : expl(expl) {};
+    AST(ExpList *expl) : expl(expl) {}
 };
+
+
+#endif

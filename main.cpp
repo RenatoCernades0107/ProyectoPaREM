@@ -1,10 +1,11 @@
 #include <ostream>
-#include "parser.cpp"
+#include "parser.hpp"
+#include "imp_printer.hpp"
 using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    string reg = "(a|b)?c*[0...3]b+";
+    string reg = "(a|b|(c*[1..9]+))?c*[0...3]b+";
     Scanner *scanner = new Scanner(reg);
 
     Token tk;
@@ -15,15 +16,19 @@ int main(int argc, char const *argv[])
 
     Parser *parser = new Parser(reg);
 
-    if(parser->parse()){
+    AST* ast = parser->parse();
+    ImpPrinter* printer = new ImpPrinter();;
+
+    printer->print(ast);
+
+    cout << endl;
+    if(ast){
         cout << "Accepted" << endl;
     }else{
         cout << "Rejected" << endl;
     }
 
-    
-
     delete scanner;
     delete parser;
-
+    delete ast;
 }
