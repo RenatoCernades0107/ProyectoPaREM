@@ -3,73 +3,65 @@
 #include "imp_visitor.hpp"
 
 struct ImpPrinter : public ImpVisitor {
-    void print(AST* e) {
+    void* print(AST* e) {
         e->expl->accept(this);
-        return;  
+        return nullptr;
     }
 
-    int visit(ExpList* e) override {
+    void* visit(ExpList* e) override {
         for (auto it = e->expl.begin(); it != e->expl.end(); ++it) {;
             (*it)->accept(this);
         }
-        return 0;
+        return nullptr;
     }
 
-    int visit(BorExp* e) override {
-
+    void* visit(BorExp* e) override {
         e->left->accept(this);
         cout << "|";
         e->right->accept(this);
-        return 0;
+        return nullptr;
     }
 
-    int visit(CharExp* e) override {
+    void* visit(CharExp* e) override {
         cout << e->c;
-        return 0;
+        return nullptr;
     }
 
-    int visit(GroupExp* e) override {
+    void* visit(GroupExp* e) override {
         cout << "(";
         for (auto exp : e->expl->expl) {
             exp->accept(this);
         }
         cout << ")";
-        return 0;
+        return nullptr;
     }
 
-    int visit(PlusExp* e) override {
-        
+    void* visit(PlusExp* e) override {
         e->e->accept(this);
         cout << "+";
-        return 0;
+        return nullptr;
     }
 
-    int visit(AsteriskExp* e) override {
-    
+    void* visit(AsteriskExp* e) override {
         e->e->accept(this);
-
         cout << "*";
-        return 0;
+        return nullptr;
     }
 
-    int visit(NrintervalExp* e) override {
-        
+    void* visit(NrintervalExp* e) override {
         cout << "[";
         cout << e->a;
         cout << "...";
         cout << e->b;
         cout << "]";
-        return 0;
+        return nullptr;
     }
 
-    int visit(QmarkExp* e) override {
-        
+    void* visit(QmarkExp* e) override {
         e->e->accept(this);
         cout << "?";
-        return 0;
+        return nullptr;
     }
-
-
 };
 
 

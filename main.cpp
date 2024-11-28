@@ -1,12 +1,14 @@
 #include <ostream>
 #include "parser.hpp"
 #include "imp_printer.hpp"
+#include "imp_nfa.hpp"
 using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    string reg = "(a|b|(c*[1..9]+))?c*[0...3]b+";
+    string reg = "(a|b)?c*[0...3]b+";
     Scanner *scanner = new Scanner(reg);
+    ImpNFA* nfabuilder = new ImpNFA();
 
     Token tk;
     while(tk.type != Token::END){
@@ -17,7 +19,8 @@ int main(int argc, char const *argv[])
     Parser *parser = new Parser(reg);
 
     AST* ast = parser->parse();
-    ImpPrinter* printer = new ImpPrinter();;
+    ImpPrinter* printer = new ImpPrinter();
+    auto x = nfabuilder->constructNFA(ast);
 
     printer->print(ast);
 

@@ -10,7 +10,7 @@ using namespace std;
 struct Exp {
     virtual void print(ostream& os) const = 0;
     virtual ~Exp() {}
-    virtual int accept(ImpVisitor* v) = 0;
+    virtual void* accept(ImpVisitor* v) = 0;
 };
 
 struct ExpList {
@@ -28,7 +28,7 @@ struct ExpList {
         }
     }
 
-    int accept(ImpVisitor* v) {
+    void* accept(ImpVisitor* v) {
         return v->visit(this);
     }
 
@@ -52,7 +52,7 @@ struct BorExp : public Exp {
         os << ")";
     }
 
-    int accept(ImpVisitor* v) override {
+    void* accept(ImpVisitor* v) override {
         return v->visit(this);
     }
     
@@ -71,7 +71,7 @@ struct CharExp : public Exp {
         os << c;
     }
 
-    int accept(ImpVisitor* v) override {
+    void* accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 
@@ -91,7 +91,7 @@ struct GroupExp : public Exp {
         os << ")";
     }
 
-    int accept(ImpVisitor* v) override {
+    void* accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 
@@ -110,7 +110,7 @@ struct PlusExp : public Exp {
         os << "+";
     }
 
-    int accept(ImpVisitor* v)  override {
+    void* accept(ImpVisitor* v)  override {
         return v->visit(this);
     }
 
@@ -128,7 +128,7 @@ struct NrintervalExp : public Exp {
         os << "[" << a << "..." << b << "]";
     }
 
-    int accept(ImpVisitor* v) override {
+    void* accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 };
@@ -143,7 +143,7 @@ struct AsteriskExp : public Exp {
         os << "*";
     }
 
-    int accept(ImpVisitor* v) override {
+    void*accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 
@@ -162,7 +162,7 @@ struct QmarkExp : public Exp {
         os << "?";
     }
 
-    int accept(ImpVisitor* v) override {
+    void* accept(ImpVisitor* v) override {
         return v->visit(this);
     }
 

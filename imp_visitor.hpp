@@ -13,16 +13,15 @@ struct AsteriskExp;
 struct QmarkExp;
 
 
-
 struct ImpVisitor {
-    virtual int visit(ExpList* e) = 0;
-    virtual int visit(BorExp* e) = 0;
-    virtual int visit(CharExp* e) = 0;
-    virtual int visit(GroupExp* e) = 0;
-    virtual int visit(PlusExp* e) = 0;
-    virtual int visit(NrintervalExp* e) = 0;
-    virtual int visit(AsteriskExp* e) = 0;
-    virtual int visit(QmarkExp* e) = 0;    
+    virtual void* visit(ExpList* e) = 0;
+    virtual void* visit(BorExp* e) = 0;
+    virtual void* visit(CharExp* e) = 0;
+    virtual void* visit(GroupExp* e) = 0;
+    virtual void* visit(PlusExp* e) = 0;
+    virtual void* visit(NrintervalExp* e) = 0;
+    virtual void* visit(AsteriskExp* e) = 0;
+    virtual void* visit(QmarkExp* e) = 0;    
 };
 
 #endif
