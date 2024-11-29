@@ -10,7 +10,11 @@ int main() {
     DFA dfa;    
     dfa.read();
     dfa.print();
-    string s = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab";
+    // a*bc
+    string *s = new string(6e8, 'a')+'b';
     bool a = dfa.exec(s);
-    bool b = dfa.parallel_rem(s, 10);
+    for (int i = 1; i < 10; i++) {
+        bool b = dfa.parallel_rem(s, i);    
+    }
+    delete *s;
 }

@@ -78,10 +78,14 @@ struct DFA {
         cout << endl;
     }
 
-    bool exec(const string& s) {
+    bool exec(const string *s) {
+        double t1, t2;
+        #ifdef _OPENMP
+        t1 = omp_get_wtime();
+        #endif
         int curr_state = 0;
-        for (int i = 0; i < s.size(); ++i) {
-            char c = s[i];
+        for (int i = 0; i < s->size(); ++i) {
+            char c = (*s)[i];
             int cidx = (int)c;
             curr_state = table[curr_state][cidx];
             if (curr_state == -1) {
@@ -89,12 +93,18 @@ struct DFA {
             }
         }
         auto it = fstates.find(curr_state);
+
+        #ifdef _OPENMP
+        t2 = omp_get_wtime();
+        #endif
+        cout << "Time: " << (t2-t1)*10e3 << " ms" << endl;
+
         
         if (it != fstates.end()) {
-            cout << "Accepted: " << s << endl;
+            cout << "Accepted: " << endl;
             return true;
         }
-        cout << "Rejected: " << s << endl;
+        cout << "Rejected: " << endl;
         return false;
     }
 
@@ -103,8 +113,8 @@ struct DFA {
     }
 
     
-    bool parallel_rem(const string& s, int num_threads) {
-        if (num_threads > s.size()) {
+    bool parallel_rem(const string *s, int num_threads) {
+        if (num_threads > s->size()) {
             throw runtime_error("Number of threads mustn't be greater than input");
         }
         #ifdef _OPENMP
@@ -118,7 +128,7 @@ struct DFA {
         #endif
         
 
-        int res = s.size() % num_threads;
+        int res = s->size() % num_threads;
         #pragma omp parallel 
         {
             int tid;
@@ -128,12 +138,12 @@ struct DFA {
             tid = omp_get_thread_num();
             #endif
             
-            int start_pos = tid*(s.size()/num_threads);
+            int start_pos = tid*(s->size()/num_threads);
             string pi_input;
             if (tid == num_threads - 1) {
-                pi_input = s.substr(start_pos, s.size()/num_threads + res);
+                pi_input = s->substr(start_pos, s->size()/num_threads + res);
             } else {
-                pi_input = s.substr(start_pos, s.size()/num_threads);
+                pi_input = s->substr(start_pos, s->size()/num_threads);
             }
 
             // Print input for each processor
@@ -145,7 +155,7 @@ struct DFA {
             // Find possible initial states
             for (int q = 0; q < table.size(); ++q) {
                 int idx_start_c = (int)pi_input[0];
-                int idx_last_c = (int)s[start_pos-1];
+                int idx_last_c = (int)(*s)[start_pos-1];
                 
                 // validate if the states exist
                 if (is_state(table[q][idx_start_c])) {
@@ -207,6 +217,10 @@ struct DFA {
         //     }
         // }
 
+        #ifdef _OPENMP
+        t2 = omp_get_wtime();
+        #endif
+        cout << "Time: " << (t2-t1)*10e3 << " ms" << endl;
 
         vector<int> last_route_indexes = {0};
         // For each process i from 1 to p-1
@@ -216,7 +230,7 @@ struct DFA {
             for (int j = 0; j < I[i].size(); ++j) {
                 int last_index_route = last_route_indexes.back();
                 int last_state_of_prev_proc = I[i-1][last_index_route][I[i-1][last_index_route].size()-1];
-                int first_char = s[i*s.size()/num_threads]; 
+                int first_char = (*s)[i*s->size()/num_threads]; 
                 int initial_state = I[i][j][0];
                 if (table[last_state_of_prev_proc][first_char] == initial_state) {
                     connected = true;
@@ -224,7 +238,7 @@ struct DFA {
                 }
             }
             if (!connected) {
-                cout << "Rejected: " << s << endl;
+                cout << "Rejected (Parallel): " << endl;
                 return false;
             }
         }
@@ -232,12 +246,12 @@ struct DFA {
         for (int i : last_route_indexes) {
             int fstate = I[I.size()-1][i][I[I.size()-1][i].size()-1];
             if (fstates.find(fstate) != fstates.end()) {
-                cout << "Accepted: " << s << endl;
+                cout << "Accepted (Parallel): " << endl;
                 return true;
             }
         }
 
-        cout << "Rejected: " << s << endl;
+        cout << "Rejected (Parallel): " << endl;
         return false;
     }
     
