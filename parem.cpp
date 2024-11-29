@@ -11,10 +11,12 @@ int main() {
     dfa.read();
     dfa.print();
     // a*bc
-    string *s = new string(6e8, 'a')+'b';
+    string *s = new string(6e8, 'a');
+    s->append({'b'});
     bool a = dfa.exec(s);
+    // std::cout << s->size() << std::endl;
     for (int i = 1; i < 10; i++) {
-        bool b = dfa.parallel_rem(s, i);    
+        bool b = dfa.parallel_rem(s);    
     }
-    delete *s;
+    delete s;
 }

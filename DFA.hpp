@@ -113,13 +113,13 @@ struct DFA {
     }
 
     
-    bool parallel_rem(const string *s, int num_threads) {
+    bool parallel_rem(const string *s) {
+        #ifdef _OPENMP
+        size_t num_threads = omp_get_thread_num();
+        #endif
         if (num_threads > s->size()) {
             throw runtime_error("Number of threads mustn't be greater than input");
         }
-        #ifdef _OPENMP
-            omp_set_num_threads(num_threads);
-        #endif
         double t1, t2;
         vector<vector<vector<int>>> I(num_threads);
 
@@ -138,7 +138,7 @@ struct DFA {
             tid = omp_get_thread_num();
             #endif
             
-            int start_pos = tid*(s->size()/num_threads);
+            size_t start_pos = tid*(s->size()/num_threads);
             string pi_input;
             if (tid == num_threads - 1) {
                 pi_input = s->substr(start_pos, s->size()/num_threads + res);
@@ -147,10 +147,10 @@ struct DFA {
             }
 
             // Print input for each processor
-            // #pragma omp critical
-            // {
-            //     cout << "Thread " << tid << ": " << pi_input << endl;
-            // }
+            #pragma omp critical
+            {
+                cout << "Thread " << tid << ": " << pi_input << endl;
+            }
 
             // Find possible initial states
             for (int q = 0; q < table.size(); ++q) {
