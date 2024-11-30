@@ -118,23 +118,24 @@ struct DFA {
         if (num_threads > s->size()) {
             throw runtime_error("Number of threads mustn't be greater than input");
         }
+        // num_threads = 1;
         #ifdef _OPENMP
             omp_set_num_threads(num_threads);
         #endif
         double t1, t2;
-        vector<vector<vector<int>>> I(num_threads);
+       vector<vector<int>> I[num_threads];
 
         #ifdef _OPENMP
         t1 = omp_get_wtime();
         #endif
         
 
-        int res = s->size() % num_threads;
-        #pragma omp parallel 
+
+        #pragma omp parallel
         {
             int tid;
             set<int> S, L; // Possible initail states, Possible final states
-
+            // std::cout << &S << std::endl;
             #ifdef _OPENMP
             tid = omp_get_thread_num();
             #endif
@@ -142,34 +143,47 @@ struct DFA {
             int start_pos = tid*(s->size()/num_threads);
             string pi_input;
             if (tid == num_threads - 1) {
-                pi_input = s->substr(start_pos, s->size()/num_threads + res);
+                pi_input = s->substr(start_pos);
             } else {
                 pi_input = s->substr(start_pos, s->size()/num_threads);
             }
 
             // Print input for each processorg
-            // #pragma omp critical
-            // {
-            //     cout << "Thread " << tid << ": " << pi_input << endl;
-            // }
+            #pragma omp critical
+            {
+                cout << "Thread " << tid << ": " << pi_input.size() << endl;
+            }
 
             // Find possible initial states
             for (int q = 0; q < table.size(); ++q) {
                 int idx_start_c = (int)pi_input[0];
-                int idx_last_c = (int)(*s)[start_pos-1];
-                
+            
                 // validate if the states exist
                 if (is_state(table[q][idx_start_c])) {
                     S.insert(q);
                 }
-                if (is_state(table[q][idx_last_c])) {
-                    L.insert(table[q][idx_last_c]);
+                
+                if (tid != 0)
+                {
+                    int idx_last_c = (int)s->at(start_pos-1);
+
+                    if (is_state(table[q][idx_last_c])) {
+                        L.insert(table[q][idx_last_c]);
+                    }
                 }
             }
 
             set<int> R;
-            set_intersection(S.begin(), S.end(), L.begin(), L.end(), inserter(R, R.begin()));
+
+            if (tid != 0) {
+                set_intersection(S.begin(), S.end(), L.begin(), L.end(), inserter(R, R.begin()));
+            }
+            else {
+                R.insert(0);
+            }
             
+            
+            std::cout << "xd\n" << std::endl;
             int found = 0;
             if (tid == 0) {
                 vector<int> Rr(pi_input.size());
@@ -206,7 +220,7 @@ struct DFA {
         // Perform reduction I
         
         // Print I
-        // for (int i = 0; i < I.size(); ++i) {
+        // for (int i = 0; i < num_threads; ++i) {
         //     cout << "Thread " << i << ": " << endl;
         //     for (size_t j = 0; j < I[i].size(); j++)
         //     {
@@ -218,7 +232,6 @@ struct DFA {
         //     }
         // }
 
-        #pragma omp barrier
 
         #ifdef _OPENMP
         t2 = omp_get_wtime();
@@ -227,7 +240,7 @@ struct DFA {
 
         vector<int> last_route_indexes = {0};
         // For each process i from 1 to p-1
-        for (int i = 1; i < I.size(); ++i) {
+        for (int i = 1; i < num_threads; ++i) {
             bool connected = false;
             // For each possible route
             for (int j = 0; j < I[i].size(); ++j) {
@@ -247,7 +260,7 @@ struct DFA {
         }
 
         for (int i : last_route_indexes) {
-            int fstate = I[I.size()-1][i][I[I.size()-1][i].size()-1];
+            int fstate = I[num_threads-1][i][I[num_threads-1][i].size()-1];
             if (fstates.find(fstate) != fstates.end()) {
                 cout << "Accepted (Parallel): " << endl;
                 return true;

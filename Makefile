@@ -2,7 +2,7 @@
 
 # Compiler and flags
 CXX := clang++
-CXXFLAGS := -Xpreprocessor -fopenmp -std=c++11 -g
+CXXFLAGS := -Xpreprocessor -fopenmp -std=c++11 -g -fopenmp-version=51
 LDFLAGS := -lomp -L/opt/homebrew/opt/libomp/lib
 INCLUDES := -I/opt/homebrew/opt/libomp/include
 
