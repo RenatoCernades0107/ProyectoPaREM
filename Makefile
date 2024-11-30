@@ -17,13 +17,12 @@ NUMPY_INCLUDE := $(VENV_PATH)/lib/python3.10/site-packages/numpy/_core/include
 
 # Linker flags
 LDFLAGS := -lomp -L/opt/homebrew/opt/libomp/lib \
-           -L$(VENV_PATH)/lib/python3.10 -lpython3.10
+           -L/Library/Frameworks/Python.framework/Versions/3.10/lib -lpython3.10
 
-# Include directories
 INCLUDES := -I/opt/homebrew/opt/libomp/include \
-            -I$(PYTHON_INCLUDE) \
-            -I$(NUMPY_INCLUDE) \
-            -I$(PYTHON_FRAMEWORK_INCLUDE)
+            -I/Library/Frameworks/Python.framework/Versions/3.10/include/python3.10 \
+            -I/Users/joaquin/Desktop/paralelas/ProyectoPaREM/venv/lib/python3.10/site-packages/numpy/_core/include
+
 
 # Target executable
 TARGET := main
