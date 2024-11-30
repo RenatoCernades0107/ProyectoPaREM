@@ -7,6 +7,7 @@
 #include <set>
 #include <algorithm>
 #include <math.h>
+// #include "matplotlibcpp.hpp"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -146,7 +147,7 @@ struct DFA {
                 pi_input = s->substr(start_pos, s->size()/num_threads);
             }
 
-            // Print input for each processor
+            // Print input for each processorg
             // #pragma omp critical
             // {
             //     cout << "Thread " << tid << ": " << pi_input << endl;
@@ -216,6 +217,8 @@ struct DFA {
         //         } cout << endl;
         //     }
         // }
+
+        #pragma omp barrier
 
         #ifdef _OPENMP
         t2 = omp_get_wtime();
