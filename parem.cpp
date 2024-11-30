@@ -1,33 +1,42 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <omp.h>
 
 #include "DFA.hpp"
 using namespace std;
 
-
-void parem(string *s, int num_threads) {
-    double t1, t2;
-    vector<vector<vector<int>>> I(num_threads);
-    int res = s->size() % num_threads;
-    t1 = omp_get_wtime();
-    #pragma omp parallel 
-    {
-        
-    }
-}
 
 
 int main() {
     DFA dfa;    
     dfa.read();
     dfa.print();
-    // a*bc
-    string *s = new string(6e8, 'a');
-    s->append({'b'});
-    // bool a = dfa.exec(s);
-    for (int i = 1; i < 10; i++) {
-        bool b = dfa.parallel_rem(s, i);    
+    // Language: a*bc?
+    const std::vector<size_t> NUMBER_OF_PROCESSES = {1, 2, 4, 8};
+    #ifdef DEBUG
+    const std::vector<double> INPUT_LENGTHS = { 6.69e+07};
+    #else
+    const std::vector<double> INPUT_LENGTHS = { 6.69e+07, 1.34e+08,  2.68e+08, 5.36e+08, 1.07e+09};
+    #endif
+
+    for (const auto n : INPUT_LENGTHS) {
+        std::vector<double> measurements;;
+        string *s = new string(n, 'a');
+        s->append({'b'});
+        for (const auto p : NUMBER_OF_PROCESSES) {
+            double t1, t2;
+            #ifdef _OPENMP
+            t1 = omp_get_wtime();
+            #endif
+            bool b = dfa.parallel_rem(s, p); 
+            #ifdef _OPENMP
+            t2 = omp_get_wtime();
+            #endif
+            measurements.push_back(t2-t1);
+        }
+         delete s;
     }
-    delete s;
+    
+   
 }

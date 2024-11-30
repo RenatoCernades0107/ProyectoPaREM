@@ -2,7 +2,7 @@
 
 # Compiler and flags
 CXX := clang++
-CXXFLAGS := -Xpreprocessor -fopenmp -std=c++17 -g -fopenmp-version=51 -Wno-deprecated-declarations
+CXXFLAGS := -Xpreprocessor -fopenmp -std=c++17 -g -fopenmp-version=51 -Wno-deprecated-declarations -D_DEBUG
 
 # Python virtual environment paths
 VENV_PATH := /Users/joaquin/Desktop/paralelas/ProyectoPaREM/venv
@@ -30,8 +30,18 @@ TARGET := main
 # Source file
 SRC := parem.cpp
 
+# Debug flags (you can modify or extend these)
+DEBUG_CXXFLAGS := -DDEBUG -O0 -g -Wall -Wextra
+DEBUG_LDFLAGS := -g
+
 # Default number of OpenMP threads
 OMP_THREADS ?= 4
+
+# If DEBUG is set, add debug flags to compilation and linking
+ifeq ($(DEBUG), 1)
+    CXXFLAGS += $(DEBUG_CXXFLAGS)
+    LDFLAGS += $(DEBUG_LDFLAGS)
+endif
 
 # macOS compilation target
 macos:

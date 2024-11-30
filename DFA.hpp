@@ -118,18 +118,10 @@ struct DFA {
         if (num_threads > s->size()) {
             throw runtime_error("Number of threads mustn't be greater than input");
         }
-        // num_threads = 1;
         #ifdef _OPENMP
             omp_set_num_threads(num_threads);
         #endif
-        double t1, t2;
        vector<vector<int>> I[num_threads];
-
-        #ifdef _OPENMP
-        t1 = omp_get_wtime();
-        #endif
-        
-
 
         #pragma omp parallel
         {
@@ -149,10 +141,10 @@ struct DFA {
             }
 
             // Print input for each processorg
-            #pragma omp critical
-            {
-                cout << "Thread " << tid << ": " << pi_input.size() << endl;
-            }
+            // #pragma omp critical
+            // {
+            //     cout << "Thread " << tid << ": " << pi_input.size() << endl;
+            // }
 
             // Find possible initial states
             for (int q = 0; q < table.size(); ++q) {
@@ -183,7 +175,7 @@ struct DFA {
             }
             
             
-            std::cout << "xd\n" << std::endl;
+            // std::cout << "xd\n" << std::endl;
             int found = 0;
             if (tid == 0) {
                 vector<int> Rr(pi_input.size());
@@ -233,10 +225,8 @@ struct DFA {
         // }
 
 
-        #ifdef _OPENMP
-        t2 = omp_get_wtime();
-        #endif
-        cout << "Time: " << (t2-t1)*10e3 << " ms" << endl;
+        
+        // cout << "Time: " << (t2-t1) << " s" << endl;
 
         vector<int> last_route_indexes = {0};
         // For each process i from 1 to p-1
