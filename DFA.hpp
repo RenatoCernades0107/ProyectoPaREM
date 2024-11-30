@@ -7,7 +7,7 @@
 #include <set>
 #include <algorithm>
 #include <math.h>
-// #include "matplotlibcpp.hpp"
+#include "matplotlibcpp.hpp"
 
 #ifdef _OPENMP
 #include <omp.h>
