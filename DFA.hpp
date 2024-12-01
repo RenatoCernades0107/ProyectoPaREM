@@ -201,7 +201,7 @@ struct DFA
                         L.insert(table[q][idx_last_c]);
                     }
                 }
-                // S n L                
+                // S n L
                 set_intersection(S.begin(), S.end(), L.begin(), L.end(), inserter(R, R.begin()));
             }
             else
@@ -210,7 +210,7 @@ struct DFA
                 R.insert(0);
             }
 
-// ok
+            // ok
 
             int found = 0;
 
@@ -287,6 +287,75 @@ struct DFA
         }
 
         cout << "Rejected (Parallel): " << endl;
+        return false;
+    }
+
+    bool sequential_rem(const string *s)
+    {
+        /*
+        I is a matrix of all possible routes
+        for each thread
+        i: thread id
+        j: index of possible route
+        k: state in possible route
+        I[i][j][k]: s state in the DFA
+        */
+        vector<vector<int>> I[1];
+
+        int tid;
+
+        /*
+            S: Possible initial states for the first character of pi_input
+            L: Possible initial states for the last character of p(i-1)_input
+        */
+        set<int> S, L;
+        set<int> R; // S n L
+
+        tid = 0;
+
+        int start_pos = tid * s->size();
+        string pi_input;
+        pi_input = s->substr(start_pos, s->size());
+
+        // only initial valid state for T0 is 0
+        R.insert(0);
+
+        int found = 0;
+
+        for (auto r : R)
+        {
+            int curr_state = r;
+            vector<int> Rr(pi_input.size());
+            for (int i = 0; i < Rr.size(); ++i)
+            {
+                int cidx = (int)pi_input[i];
+                if (fstates.find(table[curr_state][cidx]) != fstates.end())
+                {
+                    ++found;
+                }
+
+                curr_state = table[r][cidx];
+                Rr[i] = curr_state;
+            }
+
+            I[0].push_back(Rr);
+        }
+
+        // Perform reduction I
+        vector<int> last_route_indexes = {0};
+
+        for (int i : last_route_indexes)
+        {
+            int fstate = I[0][i][I[0][i].size() - 1];
+
+            if (fstates.find(fstate) != fstates.end())
+            {
+                cout << "Accepted (Sequential): " << endl;
+                return true;
+            }
+        }
+
+        cout << "Rejected (Sequential): " << endl;
         return false;
     }
 };
