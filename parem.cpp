@@ -21,9 +21,12 @@ int main() {
     #endif
 
     for (const auto n : INPUT_LENGTHS) {
-        std::vector<double> measurements;;
+        std::vector<double> measurements;
         string *s = new string(n, 'a');
         s->append({'b'});
+        s->append({'c'});
+        (*s)[0] = 'c';
+
         for (const auto p : NUMBER_OF_PROCESSES) {
             double t1, t2;
             #ifdef _OPENMP
@@ -37,6 +40,4 @@ int main() {
         }
          delete s;
     }
-    
-   
 }
