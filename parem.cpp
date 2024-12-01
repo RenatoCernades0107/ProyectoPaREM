@@ -25,7 +25,7 @@ int main() {
         string *s = new string(n, 'a');
         s->append({'b'});
         s->append({'c'});
-        (*s)[0] = 'c';
+        //(*s)[0] = 'c';
 
         for (const auto p : NUMBER_OF_PROCESSES) {
             double t1, t2;

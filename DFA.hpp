@@ -210,21 +210,24 @@ struct DFA
                 R.insert(0);
             }
 
+// ok
+
             int found = 0;
 
             for (auto r : R)
             {
+                int curr_state = r;
                 vector<int> Rr(pi_input.size());
                 for (int i = 0; i < Rr.size(); ++i)
                 {
                     int cidx = (int)pi_input[i];
-                    if (fstates.find(table[r][cidx]) != fstates.end())
+                    if (fstates.find(table[curr_state][cidx]) != fstates.end())
                     {
                         ++found;
                     }
 
-                    r = table[r][cidx];
-                    Rr[i] = r;
+                    curr_state = table[r][cidx];
+                    Rr[i] = curr_state;
                 }
 
                 I[tid].push_back(Rr);
