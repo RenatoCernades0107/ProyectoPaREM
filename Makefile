@@ -1,28 +1,20 @@
-# Makefile for compiling parem.cpp on macOS with OpenMP
+# Makefile for compiling parem.cpp with OpenMP for macOS and Linux
 
 # Compiler and flags
-CXX := clang++
-CXXFLAGS := -Xpreprocessor -fopenmp -std=c++17 -g -fopenmp-version=51 -Wno-deprecated-declarations -D_DEBUG
+CXX := g++
+CXXFLAGS := -fopenmp -std=c++17 -g -Wno-deprecated-declarations -D_DEBUG
 
-# Python virtual environment paths
-VENV_PATH := /Users/joaquin/Desktop/paralelas/ProyectoPaREM/venv
-PYTHON_INCLUDE := $(VENV_PATH)/include/python3.10
-PYTHON_LIB := $(VENV_PATH)/lib/python3.10
+# Python virtual environment paths (Linux)
+VENV_PATH_LINUX := /home/juan-diego/Desktop/UTEC/2024-2/Parallel-Computing/ProyectoPaREM/venv
+PYTHON_INCLUDE_LINUX := /usr/include/python3.12
+NUMPY_INCLUDE_LINUX := $(VENV_PATH_LINUX)/lib/python3.12/site-packages/numpy/_core/include
 
-# Path to the Python framework on macOS
-PYTHON_FRAMEWORK_INCLUDE := /Library/Frameworks/Python.framework/Headers
+# Linker flags for Python 3.12 (Linux)
+LDFLAGS_LINUX := -lpython3.12
 
-# Fix for NumPy include path
-NUMPY_INCLUDE := $(VENV_PATH)/lib/python3.10/site-packages/numpy/_core/include
-
-# Linker flags
-LDFLAGS := -lomp -L/opt/homebrew/opt/libomp/lib \
-           -L/Library/Frameworks/Python.framework/Versions/3.10/lib -lpython3.10
-
-INCLUDES := -I/opt/homebrew/opt/libomp/include \
-            -I/Library/Frameworks/Python.framework/Versions/3.10/include/python3.10 \
-            -I/Users/joaquin/Desktop/paralelas/ProyectoPaREM/venv/lib/python3.10/site-packages/numpy/_core/include
-
+# Include directories for Linux
+INCLUDES_LINUX := -I/usr/include/python3.12 \
+                  -I$(VENV_PATH_LINUX)/lib/python3.12/site-packages/numpy/_core/include
 
 # Target executable
 TARGET := main
@@ -47,9 +39,15 @@ endif
 macos:
 	# Ensure the virtual environment is activated before compiling
 	if [ -z "$$VIRTUAL_ENV" ]; then echo "Please activate your virtual environment first"; exit 1; fi
-	OMP_NUM_THREADS=$(OMP_THREADS) $(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS) $(INCLUDES)
+	OMP_NUM_THREADS=$(OMP_THREADS) $(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS) $(INCLUDES_LINUX)
 
-
+# Linux compilation target
+linux:
+	# Compile on Linux with the given Python and NumPy paths
+	OMP_NUM_THREADS=$(OMP_THREADS) g++-13 -fopenmp $(SRC) \
+        -I/usr/include/python3.12 \
+        -I/home/juan-diego/Desktop/UTEC/2024-2/Parallel-Computing/ProyectoPaREM/venv/lib/python3.12/site-packages/numpy/_core/include \
+        -lpython3.12 -o main 
 
 # Clean target to remove generated files
 clean:
