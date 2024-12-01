@@ -11,6 +11,42 @@ namespace plt = matplotlibcpp;
 
 #define DEBUG
 
+void plot_execution_time(const std::vector<size_t>& num_of_processes, 
+                         const std::vector<double>& input_lengths,
+                         std::vector<std::vector<double>>& measurements) {
+    // Ensure the NUMBER_OF_PROCESSES is a vector of doubles for plotting
+    std::vector<double> processes(num_of_processes.begin(), num_of_processes.end());
+
+    // Plotting: Each input length's measurements are plotted with the same x-axis (processes)
+    for (size_t i = 0; i < measurements.size(); ++i) {
+        std::ostringstream oss;
+        oss << std::scientific << std::setprecision(2) << input_lengths[i];
+        // Create a label with the input length for each plot
+        std::string label = "Length: " + oss.str();
+
+        // Pass the label as part of the plot's keyword arguments
+        std::map<std::string, std::string> plot_args;
+        plot_args["label"] = label;
+        plot_args["marker"] = "o";
+
+        // Plot the data for this input length with the label
+        plt::plot(processes, measurements[i], plot_args);
+    }
+
+    // Add labels, title, and legend
+    plt::xlabel("Number of Processes");
+    plt::ylabel("Time (seconds)");
+    plt::title("Parallel Execution Time vs Number of Processes");
+    plt::legend();
+    plt::grid(1);
+
+    // Save the image
+    plt::save("parem_exec_time.png");
+
+    // Show the plot
+    plt::show();
+}
+
 int main() {
     // Initialize the DFA object
     DFA dfa;    
@@ -18,10 +54,8 @@ int main() {
     dfa.print();
 
     // Language: a*bc?
-    const std::vector<size_t> NUMBER_OF_PROCESSES = {1, 2, 4, 8, 16};  // Number of processes to test
-    const std::vector<double> INPUT_LENGTHS = { 
-        6.69e+07, 1.34e+08, 2.68e+08, 5.36e+08, 1.07e+09 
-    };  // Multiple input lengths
+    const std::vector<size_t> NUMBER_OF_PROCESSES = {1, 2, 4, 8, 16 };  // Number of processes to test
+    const std::vector<double> INPUT_LENGTHS = { 6.69e+07, 1.34e+08, 2.68e+08, 5.36e+08, 1.07e+09 };  // Multiple input lengths
 
     // Create a vector to store the time measurements for each input length
     std::vector<std::vector<double>> all_measurements;
@@ -55,33 +89,6 @@ int main() {
         all_measurements.push_back(measurements);  // Store measurements for the current input length
     }
 
-    // Ensure the NUMBER_OF_PROCESSES is a vector of doubles for plotting
-    std::vector<double> processes(NUMBER_OF_PROCESSES.begin(), NUMBER_OF_PROCESSES.end());
-
-    // Plotting: Each input length's measurements are plotted with the same x-axis (processes)
-    for (size_t i = 0; i < all_measurements.size(); ++i) {
-        std::ostringstream oss;
-        oss << std::scientific << std::setprecision(2) << INPUT_LENGTHS[i];
-        // Create a label with the input length for each plot
-        std::string label = "Length: " + oss.str();
-
-        // Pass the label as part of the plot's keyword arguments
-        std::map<std::string, std::string> plot_args;
-        plot_args["label"] = label;
-        plot_args["marker"] = "o";
-
-        // Plot the data for this input length with the label
-        plt::plot(processes, all_measurements[i], plot_args);
-    }
-
-    // Add labels, title, and legend
-    plt::xlabel("Number of Processes");
-    plt::ylabel("Time (seconds)");
-    plt::title("Parallel Execution Time vs Number of Processes");
-    plt::legend();
-
-    // Show the plot
-    plt::show();
-
+    plot_execution_time(NUMBER_OF_PROCESSES, INPUT_LENGTHS, all_measurements);
     return 0;
 }
