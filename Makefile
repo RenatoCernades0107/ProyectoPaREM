@@ -49,6 +49,8 @@ macos:
 	if [ -z "$$VIRTUAL_ENV" ]; then echo "Please activate your virtual environment first"; exit 1; fi
 	OMP_NUM_THREADS=$(OMP_THREADS) $(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS) $(INCLUDES)
 
+
+
 # Clean target to remove generated files
 clean:
 	rm -f $(TARGET)
