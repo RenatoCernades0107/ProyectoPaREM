@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 #include <fstream>
 #include <omp.h>
@@ -16,7 +18,7 @@ int main() {
     dfa.print();
 
     // Language: a*bc?
-    const std::vector<size_t> NUMBER_OF_PROCESSES = {1, 2, 4, 8};  // Number of processes to test
+    const std::vector<size_t> NUMBER_OF_PROCESSES = {1, 2, 4, 8, 16};  // Number of processes to test
     const std::vector<double> INPUT_LENGTHS = { 
         6.69e+07, 1.34e+08, 2.68e+08, 5.36e+08, 1.07e+09 
     };  // Multiple input lengths
@@ -58,8 +60,18 @@ int main() {
 
     // Plotting: Each input length's measurements are plotted with the same x-axis (processes)
     for (size_t i = 0; i < all_measurements.size(); ++i) {
-        // Plot the data for each input length
-        plt::plot(processes, all_measurements[i], "-o");
+        std::ostringstream oss;
+        oss << std::scientific << std::setprecision(2) << INPUT_LENGTHS[i];
+        // Create a label with the input length for each plot
+        std::string label = "Length: " + oss.str();
+
+        // Pass the label as part of the plot's keyword arguments
+        std::map<std::string, std::string> plot_args;
+        plot_args["label"] = label;
+        plot_args["marker"] = "o";
+
+        // Plot the data for this input length with the label
+        plt::plot(processes, all_measurements[i], plot_args);
     }
 
     // Add labels, title, and legend
