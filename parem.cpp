@@ -127,11 +127,12 @@ int main()
         double t1, t2;
 
         // Create a string of length 'n' (a*bc?) for testing
-        std::string s(n, 'a'); // Initialize the string with 'a's
-        s.append("bc");        // Append "bc" to the string
+        std::string *s = new std::string(n, 'a'); // Initialize the string with 'a's
+        s->push_back('b');
+        s->push_back('c');
 
         t1 = omp_get_wtime(); // Start timing
-        dfa.sequential_rem(&s);
+        dfa.sequential_rem(s);
         t2 = omp_get_wtime(); // End timing
 
         Ts.push_back(t2 - t1); // Store the sequential time
@@ -144,7 +145,7 @@ int main()
 #endif
 
             // Run the DFA algorithm with the current number of processes
-            bool b = dfa.parallel_rem(&s, p);
+            bool b = dfa.parallel_rem(s, p);
 
 #ifdef _OPENMP
             t2 = omp_get_wtime(); // End timing
