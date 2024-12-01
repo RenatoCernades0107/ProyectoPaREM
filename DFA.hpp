@@ -226,7 +226,7 @@ struct DFA
                         ++found;
                     }
 
-                    curr_state = table[r][cidx];
+                    curr_state = table[curr_state][cidx];
                     Rr[i] = curr_state;
                 }
 
@@ -267,6 +267,7 @@ struct DFA
                 {
                     connected = true;
                     last_route_indexes.push_back(j);
+                    break;
                 }
             }
             if (!connected)

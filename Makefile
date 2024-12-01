@@ -49,6 +49,13 @@ linux:
         -I/home/juan-diego/Desktop/UTEC/2024-2/Parallel-Computing/ProyectoPaREM/venv/lib/python3.12/site-packages/numpy/_core/include \
         -lpython3.12 -o main 
 
+linur:
+	# Compile on Linux with the given Python and NumPy paths
+	OMP_NUM_THREADS=$(OMP_THREADS) g++-11 -fopenmp $(SRC) \
+        -I/usr/include/python3.10 \
+        -I/home/renato/Documents/Parallel_Computing/ProyectoPaREM/venv/lib/python3.10/site-packages/numpy/_core/include \
+        -lpython3.10 -o main 
+
 # Clean target to remove generated files
 clean:
 	rm -f $(TARGET)

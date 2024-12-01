@@ -129,7 +129,7 @@ int main()
         // Create a string of length 'n' (a*bc?) for testing
         std::string *s = new std::string(n, 'a'); // Initialize the string with 'a's
         s->push_back('b');
-        s->push_back('c');
+        // cout << "Cadena: " << *s << endl;
 
         t1 = omp_get_wtime(); // Start timing
         dfa.sequential_rem(s);
