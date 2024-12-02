@@ -249,7 +249,6 @@ struct DFA
         //     }
         // }
 
-        // cout << "Time: " << (t2-t1) << " s" << endl;
 
         vector<int> last_route_indexes = {0};
         // For each process i from 1 to p-1
@@ -272,7 +271,6 @@ struct DFA
             }
             if (!connected)
             {
-                cout << "Rejected (Parallel): " << endl;
                 return false;
             }
         }
@@ -282,12 +280,10 @@ struct DFA
             int fstate = I[num_threads - 1][i][I[num_threads - 1][i].size() - 1];
             if (fstates.find(fstate) != fstates.end())
             {
-                cout << "Accepted (Parallel): " << endl;
                 return true;
             }
         }
 
-        cout << "Rejected (Parallel): " << endl;
         return false;
     }
 

@@ -129,17 +129,26 @@ int main()
         // Create a string of length 'n' (a*bc?) for testing
         std::string *s = new std::string(n, 'a'); // Initialize the string with 'a's
         s->push_back('b');
-        // cout << "Cadena: " << *s << endl;
 
+        cout << "Sequential (n=" << n << "):" << endl;
         t1 = omp_get_wtime(); // Start timing
-        dfa.sequential_rem(s);
+        bool b = dfa.exec(s);
         t2 = omp_get_wtime(); // End timing
+
+        if (b) {
+            cout << "accepted" << endl;            
+        } else {
+            cout << "rejected" << endl;
+        }
 
         Ts.push_back(t2 - t1); // Store the sequential time
 
         // Iterate over the different numbers of processes
+        
+        cout << "Parallel (n=" << n << "):" << endl;
         for (const auto p : NUMBER_OF_PROCESSES)
         {
+            cout << "For p=" << p << ":" <<  endl; 
 #ifdef _OPENMP
             t1 = omp_get_wtime(); // Start timing
 #endif
@@ -150,6 +159,12 @@ int main()
 #ifdef _OPENMP
             t2 = omp_get_wtime(); // End timing
 #endif
+
+            if (b) {
+                cout << "accepted" << endl;            
+            } else {
+                cout << "rejected" << endl;
+            }
 
             measurements.push_back(t2 - t1); // Store the elapsed time for this configuration
         }
