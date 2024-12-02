@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <vector>
 #include <fstream>
+#include <cmath>
 #include <omp.h>
 #include "DFA.hpp"
 #include "matplotlibcpp.hpp"
@@ -11,7 +12,7 @@ namespace plt = matplotlibcpp;
 
 void plot_execution_time(const std::vector<size_t> &num_of_processes,
                          const std::vector<double> &input_lengths,
-                         std::vector<std::vector<double>> &Tp)
+                         std::vector<std::vector<double>> Tp)
 {
     // Ensure the NUMBER_OF_PROCESSES is a vector of doubles for plotting
     std::vector<double> processes(num_of_processes.begin(), num_of_processes.end());
@@ -57,7 +58,7 @@ void plot_speedup(const std::vector<size_t> &num_of_processes,
     std::vector<double> ideal_speedup;
 
     for (int i = 0; i < num_of_processes.size(); ++i)
-        ideal_speedup.push_back(num_of_processes[i]);
+        ideal_speedup.push_back(log2(num_of_processes[i]));
 
     std::string label = "Ideal Speedup";
 
@@ -87,6 +88,9 @@ void plot_speedup(const std::vector<size_t> &num_of_processes,
         plot_args["marker"] = "o";
 
         // Plot the data for this input length with the label
+
+        for (double &x : Tp[i]) x = log2(x);
+
         plt::plot(processes, Tp[i], plot_args);
     }
 
@@ -135,20 +139,19 @@ int main()
         bool b = dfa.exec(s);
         t2 = omp_get_wtime(); // End timing
 
-        if (b) {
-            cout << "accepted" << endl;            
-        } else {
+        if (b)
+            cout << "accepted" << endl;
+        else
             cout << "rejected" << endl;
-        }
 
         Ts.push_back(t2 - t1); // Store the sequential time
 
         // Iterate over the different numbers of processes
-        
+
         cout << "Parallel (n=" << n << "):" << endl;
         for (const auto p : NUMBER_OF_PROCESSES)
         {
-            cout << "For p=" << p << ":" <<  endl; 
+            cout << "For p=" << p << ":" << endl;
 #ifdef _OPENMP
             t1 = omp_get_wtime(); // Start timing
 #endif
@@ -160,11 +163,10 @@ int main()
             t2 = omp_get_wtime(); // End timing
 #endif
 
-            if (b) {
-                cout << "accepted" << endl;            
-            } else {
+            if (b)
+                cout << "accepted" << endl;
+            else
                 cout << "rejected" << endl;
-            }
 
             measurements.push_back(t2 - t1); // Store the elapsed time for this configuration
         }
@@ -172,8 +174,12 @@ int main()
         Tp.push_back(measurements); // Store measurements for the current input length
     }
 
-    plot_execution_time(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp);
-    plot_speedup(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp, Ts);
+    int pid = fork();
+
+    if (pid)
+        plot_execution_time(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp);
+    else
+        plot_speedup(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp, Ts);
 
     return 0;
 }
