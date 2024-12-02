@@ -58,6 +58,64 @@ void plot_speedup(const std::vector<size_t> &num_of_processes,
     std::vector<double> ideal_speedup;
 
     for (int i = 0; i < num_of_processes.size(); ++i)
+        ideal_speedup.push_back(num_of_processes[i]);
+
+    std::string label = "Ideal Speedup";
+
+    // Pass the label as part of the plot's keyword arguments
+    std::map<std::string, std::string> plot_args;
+    plot_args["label"] = label;
+    plot_args["marker"] = "o";
+
+    // Plot the data for this input length with the label
+    plt::plot(processes, ideal_speedup, plot_args);
+
+    for (int i = 0; i < Tp.size(); ++i)
+        for (int j = 0; j < num_of_processes.size(); ++j)
+            Tp[i][j] = Ts[i] / Tp[i][j];
+
+    // Plotting: Each input length's measurements are plotted with the same x-axis (processes)
+    for (size_t i = 0; i < Tp.size(); ++i)
+    {
+        std::ostringstream oss;
+        oss << std::scientific << std::setprecision(2) << input_lengths[i];
+        // Create a label with the input length for each plot
+        std::string label = "Length: " + oss.str();
+
+        // Pass the label as part of the plot's keyword arguments
+        std::map<std::string, std::string> plot_args;
+        plot_args["label"] = label;
+        plot_args["marker"] = "o";
+
+        // Plot the data for this input length with the label
+
+        plt::plot(processes, Tp[i], plot_args);
+    }
+
+    // Add labels, title, and legend
+    plt::xlabel("Number of Processes");
+    plt::ylabel("Speedup");
+    plt::title("Speedup vs Number of Processes");
+    plt::legend();
+    plt::grid(1);
+
+    // Save the image
+    plt::save("parem_speedup_.png");
+
+    // Show the plot
+    // plt::show();
+}
+
+void plot_speeduplog(const std::vector<size_t> &num_of_processes,
+                  const std::vector<double> &input_lengths,
+                  std::vector<std::vector<double>> Tp,
+                  std::vector<double> &Ts)
+{
+    // Ensure the NUMBER_OF_PROCESSES is a vector of doubles for plotting
+    std::vector<double> processes(num_of_processes.begin(), num_of_processes.end());
+    std::vector<double> ideal_speedup;
+
+    for (int i = 0; i < num_of_processes.size(); ++i)
         ideal_speedup.push_back(log2(num_of_processes[i]));
 
     std::string label = "Ideal Speedup";
@@ -102,7 +160,7 @@ void plot_speedup(const std::vector<size_t> &num_of_processes,
     plt::grid(1);
 
     // Save the image
-    plt::save("parem_speedup.png");
+    plt::save("parem_speedup_log.png");
 
     // Show the plot
     // plt::show();
@@ -136,7 +194,7 @@ int main()
 
         cout << "Sequential (n=" << n << "):" << endl;
         t1 = omp_get_wtime(); // Start timing
-        bool b = dfa.exec(s);
+        bool b = dfa.parallel_rem(s, 1);
         t2 = omp_get_wtime(); // End timing
 
         if (b)
@@ -177,9 +235,16 @@ int main()
     int pid = fork();
 
     if (pid)
-        plot_execution_time(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp);
+         plot_execution_time(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp);
     else
-        plot_speedup(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp, Ts);
+    {
+        pid = fork();
+
+        if (pid)
+            plot_speedup(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp, Ts);
+        else
+            plot_speeduplog(NUMBER_OF_PROCESSES, INPUT_LENGTHS, Tp, Ts);
+    }
 
     return 0;
 }
